@@ -46,6 +46,7 @@ static gr_surface gProgressBarEmpty[NUM_SIDES];
 static gr_surface gProgressBarFill[NUM_SIDES];
 
 static const struct { gr_surface* surface; const char *name; } BITMAPS[] = {
+    
     { &gBackgroundIcon[BACKGROUND_ICON_INSTALLING], "icon_installing" },
     { &gBackgroundIcon[BACKGROUND_ICON_ERROR],      "icon_error" },
     { &gBackgroundIcon[BACKGROUND_ICON_FIRMWARE_INSTALLING],
@@ -176,7 +177,7 @@ static void draw_screen_locked(void)
 
         int i = 0;
         if (show_menu) {
-            gr_color(122, 154, 29, 255);
+            gr_color(120, 166, 0, 255);
             gr_fill(0, (menu_top+menu_sel) * CHAR_HEIGHT,
                     gr_fb_width(), (menu_top+menu_sel+1)*CHAR_HEIGHT+1);
 
@@ -184,7 +185,7 @@ static void draw_screen_locked(void)
                 if (i == menu_top + menu_sel) {
                     gr_color(255, 255, 255, 255);
                     draw_text_line(i, menu[i]);
-                    gr_color(122, 154, 29, 255);
+                    gr_color(120, 166, 0, 255);
                 } else {
                     draw_text_line(i, menu[i]);
                 }
@@ -451,6 +452,13 @@ void ui_print(const char *fmt, ...)
                 text_row = (text_row + 1) % text_rows;
                 if (text_row == text_top) text_top = (text_top + 1) % text_rows;
             }
+// \r support 
+            if (*ptr == '\r') {
+                text_col = 0;
+            }
+// \r support 
+
+
             if (*ptr != '\n') text[text_row][text_col++] = *ptr;
         }
         text[text_row][text_col] = '\0';

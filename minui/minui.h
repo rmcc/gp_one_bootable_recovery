@@ -55,10 +55,8 @@ struct input_event;
 #define KEY_DREAM_GREEN       231
 #define KEY_DREAM_FATTOUCH    258  // = BTN_2 ???
 #define KEY_DREAM_BALL        272  // = BTN_MOUSE
+#define BTN_HERO_BALL         191  // = BTN_HERO_BALL
 #define KEY_DREAM_TOUCH       330  // = BTN_TOUCH
-
-// For Samsung
-#define KEY_I7500_CENTER      232
 
 int ev_init(void);
 void ev_exit(void);
