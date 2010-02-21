@@ -58,6 +58,12 @@ struct input_event;
 #define BTN_HERO_BALL         191  // = BTN_HERO_BALL
 #define KEY_DREAM_TOUCH       330  // = BTN_TOUCH
 
+// ONE-specific key codes
+#define KEY_ONE_HOME	102 // = KEY_HOME
+#define KEY_ONE_CAMERA	183 // = KEY_F13
+#define KEY_ONE_RED	107 // = KEY_END
+#define KEY_ONE_GREEN	231 // = KEY_SEND
+
 int ev_init(void);
 void ev_exit(void);
 int ev_get(struct input_event *ev, unsigned dont_wait);

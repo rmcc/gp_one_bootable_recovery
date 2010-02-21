@@ -304,7 +304,7 @@ run_script(char *str1,char *str2,char *str3,char *str4,char *str5,char *str6,cha
 	ui_print("\nPress HOME to confirm,");
        	ui_print("\nany other key to abort.\n");
 	int confirm = ui_wait_key();
-		if (confirm == KEY_DREAM_HOME) {
+		if (confirm == KEY_HOME) {
                 	ui_print(str2);
 		        pid_t pid = fork();
                 	if (pid == 0) {
@@ -425,7 +425,7 @@ choose_nandroid_file(const char *nandroid_folder)
         int key = ui_wait_key();
         int visible = ui_text_visible();
 
-        if (key == KEY_DREAM_BACK) {
+        if (key == KEY_BACK || key == KEY_ONE_CAMERA) {
             break;
         } else if ((key == KEY_DOWN || key == KEY_VOLUMEDOWN) && visible) {
             ++selected;
@@ -433,7 +433,7 @@ choose_nandroid_file(const char *nandroid_folder)
         } else if ((key == KEY_UP || key == KEY_VOLUMEUP) && visible) {
             --selected;
             selected = ui_menu_select(selected);
-        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN) && visible ) {
+        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN || key == KEY_ONE_HOME) && visible ) {
             chosen_item = selected;
         }
 
@@ -447,7 +447,7 @@ choose_nandroid_file(const char *nandroid_folder)
             ui_print(" ?\nPress HOME to confirm,");
             ui_print("\nany other key to abort.\n");
             int confirm_apply = ui_wait_key();
-            if (confirm_apply == KEY_DREAM_HOME) {
+            if (confirm_apply == KEY_HOME) {
                       
                             ui_print("\nRestoring : ");
        		            char nandroid_command[200]="/sbin/nandroid-mobile.sh -r -e --defaultinput --nosplash1 --nosplash2 --norecovery -s ";
@@ -589,7 +589,7 @@ choose_nandroid_folder()
         int key = ui_wait_key();
         int visible = ui_text_visible();
 
-        if (key == KEY_DREAM_BACK) {
+        if (key == KEY_BACK || key == KEY_ONE_CAMERA) {
             break;
         } else if ((key == KEY_DOWN || key == KEY_VOLUMEDOWN) && visible) {
             ++selected;
@@ -597,7 +597,7 @@ choose_nandroid_folder()
         } else if ((key == KEY_UP || key == KEY_VOLUMEUP) && visible) {
             --selected;
             selected = ui_menu_select(selected);
-        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN) && visible ) {
+        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN || key == KEY_ONE_HOME) && visible ) {
             chosen_item = selected;
         }
 
@@ -708,7 +708,7 @@ choose_update_file()
         int key = ui_wait_key();
         int visible = ui_text_visible();
 
-        if (key == KEY_DREAM_BACK) {
+        if (key == KEY_BACK || key == KEY_ONE_CAMERA) {
             break;
         } else if ((key == KEY_DOWN || key == KEY_VOLUMEDOWN) && visible) {
             ++selected;
@@ -716,7 +716,7 @@ choose_update_file()
         } else if ((key == KEY_UP || key == KEY_VOLUMEUP) && visible) {
             --selected;
             selected = ui_menu_select(selected);
-        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN) && visible ) {
+        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN || key == KEY_ONE_HOME) && visible ) {
             chosen_item = selected;
         }
 
@@ -730,7 +730,7 @@ choose_update_file()
             ui_print(" ? \nPress HOME to confirm,");
             ui_print("\nany other key to abort.\n");
             int confirm_apply = ui_wait_key();
-            if (confirm_apply == KEY_DREAM_HOME) {
+            if (confirm_apply == KEY_HOME) {
                 ui_print("\nInstall from sdcard...\n");
                 int status = install_package(files[chosen_item]);
                 if (status != INSTALL_SUCCESS) {
@@ -798,7 +798,7 @@ show_menu_wipe()
         int alt = ui_key_pressed(KEY_LEFTALT) || ui_key_pressed(KEY_RIGHTALT);
         int visible = ui_text_visible();
 
-        if (key == KEY_DREAM_BACK) {
+        if (key == KEY_BACK || KEY_ONE_CAMERA) {
             break;
         } else if (alt && key == KEY_0) {
             chosen_item = ITEM_WIPE_DATA;
@@ -816,7 +816,7 @@ show_menu_wipe()
         } else if ((key == KEY_UP || key == KEY_VOLUMEUP) && visible) {
             --selected;
             selected = ui_menu_select(selected);
-        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN) && visible ) {
+        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN || key == KEY_ONE_HOME) && visible ) {
             chosen_item = selected;
         }
 
@@ -832,7 +832,7 @@ show_menu_wipe()
                     ui_print("\nPress HOME to confirm,");
                     ui_print("\nany other key to abort.\n");
                     int confirm_wipe_data = ui_wait_key();
-                    if (confirm_wipe_data == KEY_DREAM_HOME) {
+                    if (confirm_wipe_data == KEY_HOME) {
                         ui_print("\nWiping data...\n");
                         erase_root("DATA:");
                         erase_root("CACHE:");
@@ -937,7 +937,7 @@ show_menu_br()
         int alt = ui_key_pressed(KEY_LEFTALT) || ui_key_pressed(KEY_RIGHTALT);
         int visible = ui_text_visible();
 
-        if (key == KEY_DREAM_BACK) {
+        if (key == KEY_BACK || key == KEY_ONE_CAMERA) {
             break;
         } else if (alt && key == KEY_0) {
             chosen_item = ITEM_NANDROID_BCK;
@@ -955,7 +955,7 @@ show_menu_br()
         } else if ((key == KEY_UP || key == KEY_VOLUMEUP) && visible) {
             --selected;
             selected = ui_menu_select(selected);
-        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN) && visible ) {
+        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN || key == KEY_ONE_HOME) && visible ) {
             chosen_item = selected;
         }
 
@@ -1064,7 +1064,7 @@ show_menu_partition()
         int alt = ui_key_pressed(KEY_LEFTALT) || ui_key_pressed(KEY_RIGHTALT);
         int visible = ui_text_visible();
 
-        if (key == KEY_DREAM_BACK) {
+        if (key == KEY_BACK || key == KEY_ONE_CAMERA) {
             break;
         } else if (alt && key == KEY_0) {
             chosen_item = ITEM_PART_SD;
@@ -1080,7 +1080,7 @@ show_menu_partition()
         } else if ((key == KEY_UP || key == KEY_VOLUMEUP) && visible) {
             --selected;
             selected = ui_menu_select(selected);
-        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN) && visible ) {
+        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN || key == KEY_ONE_HOME) && visible ) {
             chosen_item = selected;
         }
 
@@ -1096,7 +1096,7 @@ show_menu_partition()
 			ui_print("\nPress HOME to confirm,");
 		       	ui_print("\nany other key to abort.");
 			int confirm = ui_wait_key();
-				if (confirm == KEY_DREAM_HOME) {
+				if (confirm == KEY_HOME) {
 				       	ui_print("\n\nUse trackball or volume-keys");
 				       	ui_print("\nto increase/decrease size,");
 				       	ui_print("\nHOME to set (0=NONE) :\n\n");
@@ -1106,7 +1106,7 @@ show_menu_partition()
 						sprintf(swapsize, "%4d", swap);
 						ui_print("\rSwap-size  = %s MB",swapsize);
         	                        	int key = ui_wait_key();
-						if (key == KEY_DREAM_HOME) {
+						if (key == KEY_HOME) {
 							if (swap==0){
 								ui_print("\rSwap-size  = %s MB : NONE\n",swapsize);
 							} else {
@@ -1127,7 +1127,7 @@ show_menu_partition()
 						sprintf(extsize, "%4d", ext);
 						ui_print("\rExt2-size  = %s MB",extsize);
         	                        	int key = ui_wait_key();
-						if (key == KEY_DREAM_HOME) {
+						if (key == KEY_HOME) {
 							if (ext==0){
 								ui_print("\rExt2-size  = %s MB : NONE\n",extsize);
                     } else {
@@ -1238,7 +1238,7 @@ show_menu_other()
         int alt = ui_key_pressed(KEY_LEFTALT) || ui_key_pressed(KEY_RIGHTALT);
         int visible = ui_text_visible();
 
-        if (key == KEY_DREAM_BACK) {
+        if (key == KEY_BACK || key == KEY_ONE_CAMERA) {
             break;
         } else if (alt && key == KEY_0) {
             chosen_item = ITEM_OTHER_FIXUID;
@@ -1252,7 +1252,7 @@ show_menu_other()
         } else if ((key == KEY_UP || key == KEY_VOLUMEUP) && visible) {
             --selected;
             selected = ui_menu_select(selected);
-        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN) && visible ) {
+        } else if ((key == BTN_MOUSE || key == KEY_ONE_HOME || key == KEY_DREAM_GREEN) && visible ) {
             chosen_item = selected;
         }
 
@@ -1384,7 +1384,7 @@ prompt_and_wait()
         } else if ((key == KEY_UP || key == KEY_VOLUMEUP) && visible) {
             --selected;
             selected = ui_menu_select(selected);
-        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN) && visible ) {
+        } else if ((key == BTN_MOUSE || key == KEY_DREAM_GREEN || key == KEY_ONE_HOME) && visible ) {
             chosen_item = selected;
         }
 

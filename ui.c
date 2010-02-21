@@ -308,20 +308,19 @@ static void *input_thread(void *cookie)
         }
         pthread_mutex_unlock(&key_queue_mutex);
 
-        // Alt+L or Home+End: toggle log display
+        // Alt+L or Green+Red: toggle log display
         int alt = key_pressed[KEY_LEFTALT] || key_pressed[KEY_RIGHTALT];
         if ((alt && ev.code == KEY_L && ev.value > 0) ||
-            (key_pressed[KEY_HOME] && ev.code == KEY_END && ev.value > 0)) {
+            (key_pressed[KEY_ONE_GREEN] && ev.code == KEY_END && ev.value > 0)) {
             pthread_mutex_lock(&gUpdateMutex);
             show_text = !show_text;
             update_screen_locked();
             pthread_mutex_unlock(&gUpdateMutex);
         }
 
-        // Green+Menu+Red: reboot immediately
-        if (ev.code == KEY_DREAM_RED &&
-            key_pressed[KEY_DREAM_MENU] &&
-            key_pressed[KEY_DREAM_GREEN]) {
+        // Green+Camera: reboot immediately
+        if (ev.code == KEY_ONE_CAMERA &&
+            key_pressed[KEY_ONE_GREEN]) {
             reboot(RB_AUTOBOOT);
         }
     }
