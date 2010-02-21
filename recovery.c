@@ -1320,25 +1320,28 @@ prompt_and_wait()
   
 	
     static char* headers[] = { "Android system recovery",
+			       "GeeksPhone ONE",
 			       "",
 			       NULL };
 
 // these constants correspond to elements of the items[] list.
 #define ITEM_REBOOT        0
-#define ITEM_CONSOLE       1
-#define ITEM_USBTOGGLE     2
-#define ITEM_BR            3
-#define ITEM_FLASH         4
-#define ITEM_WIPE          5
-#define ITEM_PARTITION     6
-#define ITEM_OTHER         7
+#define ITEM_ADB_ENABLE    1
+#define ITEM_CONSOLE       2
+#define ITEM_USBTOGGLE     3
+#define ITEM_BR            4
+#define ITEM_FLASH         5
+#define ITEM_WIPE          6
+#define ITEM_PARTITION     7
+#define ITEM_OTHER         8
 
 
-    static char* items[] = { "[Home+Back] Reboot system now",
+    static char* items[] = { "[Red+Cam] Reboot phone now",
+                             "[Alt+A] Toggle ADB status",
                              "[Alt+X] Go to console",
                              "[Alt+T] USB-MS toggle",
                              "[Alt+B] Backup/Restore",
-                             "[Alt+F] Flash zip from sdcard",
+                             "[Alt+F] Install ZIP from sdcard",
                              "[Alt+W] Wipe",
                              "[Alt+P] Partition sdcard",
                              "[Alt+O] Other",
@@ -1348,6 +1351,9 @@ prompt_and_wait()
     int selected = 0;
     int chosen_item = -1;
 
+    pid_t pid;
+    int status;
+
     finish_recovery(NULL);
     ui_reset_progress();
     for (;;) {
@@ -1355,14 +1361,17 @@ prompt_and_wait()
         int alt = ui_key_pressed(KEY_LEFTALT) || ui_key_pressed(KEY_RIGHTALT);
         int visible = ui_text_visible();
 
-        if (key == KEY_DREAM_BACK && ui_key_pressed(KEY_DREAM_HOME)) {
+        if ((key == KEY_BACK || key == KEY_ONE_CAMERA) && ui_key_pressed(KEY_ONE_RED)) {
             // Wait for the keys to be released, to avoid triggering
             // special boot modes (like coming back into recovery!).
-            while (ui_key_pressed(KEY_DREAM_BACK) ||
-                   ui_key_pressed(KEY_DREAM_HOME)) {
+            while (ui_key_pressed(KEY_BACK) ||
+                   ui_key_pressed(KEY_ONE_RED) ||
+                   ui_key_pressed(KEY_ONE_GREEN)) {
                 usleep(1000);
             }
             chosen_item = ITEM_REBOOT;
+        } else if (alt && key == KEY_A) {
+            chosen_item = ITEM_ADB_ENABLE;
         } else if (alt && key == KEY_X) {
             chosen_item = ITEM_CONSOLE;
         } else if (alt && key == KEY_T) {
@@ -1403,17 +1412,43 @@ prompt_and_wait()
                     gr_exit();
                     break;
             
+                case ITEM_ADB_ENABLE:
+
+                	ui_print("\nToggling ADB : ");
+		        pid = fork();
+                	if (pid == 0) {
+                		char *args[] = { "/sbin/sh", "-c", "/sbin/adb_enable", "1>&2", NULL };
+                	        execv("/sbin/sh", args);
+                	        fprintf(stderr, "\nUnable to enable ADB!\n(%s)\n", strerror(errno));
+                	        _exit(-1);
+                	}
+			while (waitpid(pid, &status, WNOHANG) == 0) {
+				ui_print(".");
+               		        sleep(1);
+			}
+                	ui_print("\n");
+			if (!WIFEXITED(status) || (WEXITSTATUS(status) != 0)) {
+				if (WEXITSTATUS(status) == 1) {
+                			ui_print("\nOK : ADB enabled\n\n");
+				} else if (WEXITSTATUS(status) == 2) {
+                			ui_print("\nOK : ADB disabled\n\n");
+				} else {
+                			ui_print("\nError : Run adb_enable via console!\n\n");
+				}
+                	} else {
+                		ui_print("\nWARN : ADB toggled\n\n");
+                	}
+			break;
                 case ITEM_USBTOGGLE:
 
                 	ui_print("\nEnabling USB-MS : ");
-		        pid_t pid = fork();
+		        pid = fork();
                 	if (pid == 0) {
                 		char *args[] = { "/sbin/sh", "-c", "/sbin/ums_toggle on", "1>&2", NULL };
                 	        execv("/sbin/sh", args);
                 	        fprintf(stderr, "\nUnable to enable USB-MS!\n(%s)\n", strerror(errno));
                 	        _exit(-1);
                 	}
-			int status;
 			while (waitpid(pid, &status, WNOHANG) == 0) {
 				ui_print(".");
                		        sleep(1);
@@ -1427,7 +1462,7 @@ prompt_and_wait()
 				ui_print("\nand return to menu\n");
 		       		for (;;) {
         	                        	int key = ui_wait_key();
-						if (key == KEY_DREAM_HOME) {
+						if (key == KEY_HOME) {
 							ui_print("\nDisabling USB-MS : ");
 						        pid_t pid = fork();
 				                	if (pid == 0) {
@@ -1531,8 +1566,9 @@ main(int argc, char **argv)
         case 'u': update_package = optarg; break;
         case 'w': wipe_data = wipe_cache = 1; break;
         case 'c': wipe_cache = 1; break;
-        case '?':
-            LOGE("Invalid command argument\n");
+        case '?': break;
+        default: 
+            LOGE("Invalid command argument (%c)\n",arg);
             continue;
         }
     }
