@@ -27,13 +27,12 @@
 
 #include "common.h"
 #include "minui/minui.h"
-#include "recovery_ui.h"
 
 #define MAX_COLS 64
 #define MAX_ROWS 32
 
-#define CHAR_WIDTH 10
-#define CHAR_HEIGHT 18
+#define CHAR_WIDTH 7
+#define CHAR_HEIGHT 16
 
 #define PROGRESSBAR_INDETERMINATE_STATES 6
 #define PROGRESSBAR_INDETERMINATE_FPS 15
@@ -47,6 +46,7 @@ static gr_surface gProgressBarEmpty[NUM_SIDES];
 static gr_surface gProgressBarFill[NUM_SIDES];
 
 static const struct { gr_surface* surface; const char *name; } BITMAPS[] = {
+    
     { &gBackgroundIcon[BACKGROUND_ICON_INSTALLING], "icon_installing" },
     { &gBackgroundIcon[BACKGROUND_ICON_ERROR],      "icon_error" },
     { &gBackgroundIcon[BACKGROUND_ICON_FIRMWARE_INSTALLING],
@@ -87,7 +87,7 @@ static int gPagesIdentical = 0;
 static char text[MAX_ROWS][MAX_COLS];
 static int text_cols = 0, text_rows = 0;
 static int text_col = 0, text_row = 0, text_top = 0;
-static int show_text = 0;
+static int show_text = 1;
 
 static char menu[MAX_ROWS][MAX_COLS];
 static int show_menu = 0;
@@ -177,7 +177,7 @@ static void draw_screen_locked(void)
 
         int i = 0;
         if (show_menu) {
-            gr_color(64, 96, 255, 255);
+            gr_color(0, 133, 166, 255);
             gr_fill(0, (menu_top+menu_sel) * CHAR_HEIGHT,
                     gr_fb_width(), (menu_top+menu_sel+1)*CHAR_HEIGHT+1);
 
@@ -185,7 +185,7 @@ static void draw_screen_locked(void)
                 if (i == menu_top + menu_sel) {
                     gr_color(255, 255, 255, 255);
                     draw_text_line(i, menu[i]);
-                    gr_color(64, 96, 255, 255);
+                    gr_color(0, 133, 166, 255);
                 } else {
                     draw_text_line(i, menu[i]);
                 }
@@ -195,7 +195,7 @@ static void draw_screen_locked(void)
             ++i;
         }
 
-        gr_color(255, 255, 0, 255);
+        gr_color(193, 193, 193, 255);
 
         for (; i < text_rows; ++i) {
             draw_text_line(i, text[(i+text_top) % text_rows]);
@@ -308,14 +308,19 @@ static void *input_thread(void *cookie)
         }
         pthread_mutex_unlock(&key_queue_mutex);
 
-        if (ev.value > 0 && device_toggle_display(key_pressed, ev.code)) {
+        // Alt+L or Green+Red: toggle log display
+        int alt = key_pressed[KEY_LEFTALT] || key_pressed[KEY_RIGHTALT];
+        if ((alt && ev.code == KEY_L && ev.value > 0) ||
+            (key_pressed[KEY_ONE_GREEN] && ev.code == KEY_END && ev.value > 0)) {
             pthread_mutex_lock(&gUpdateMutex);
             show_text = !show_text;
             update_screen_locked();
             pthread_mutex_unlock(&gUpdateMutex);
         }
 
-        if (ev.value > 0 && device_reboot_now(key_pressed, ev.code)) {
+        // Green+Camera: reboot immediately
+        if (ev.code == KEY_ONE_CAMERA &&
+            key_pressed[KEY_ONE_GREEN]) {
             reboot(RB_AUTOBOOT);
         }
     }
@@ -339,11 +344,7 @@ void ui_init(void)
     for (i = 0; BITMAPS[i].name != NULL; ++i) {
         int result = res_create_surface(BITMAPS[i].name, BITMAPS[i].surface);
         if (result < 0) {
-            if (result == -2) {
-                LOGI("Bitmap %s missing header\n", BITMAPS[i].name);
-            } else {
-                LOGE("Missing bitmap %s\n(Code %d)\n", BITMAPS[i].name, result);
-            }
+            LOGE("Missing bitmap %s\n(Code %d)\n", BITMAPS[i].name, result);
             *BITMAPS[i].surface = NULL;
         }
     }
@@ -450,6 +451,13 @@ void ui_print(const char *fmt, ...)
                 text_row = (text_row + 1) % text_rows;
                 if (text_row == text_top) text_top = (text_top + 1) % text_rows;
             }
+// \r support 
+            if (*ptr == '\r') {
+                text_col = 0;
+            }
+// \r support 
+
+
             if (*ptr != '\n') text[text_row][text_col++] = *ptr;
         }
         text[text_row][text_col] = '\0';

@@ -29,7 +29,7 @@
 
 #include <pixelflinger/pixelflinger.h>
 
-#include "font_10x18.h"
+#include "font_7x16.h"
 #include "minui.h"
 
 typedef struct {

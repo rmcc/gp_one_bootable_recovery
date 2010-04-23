@@ -52,7 +52,7 @@ static RootInfo g_roots[] = {
     { "RECOVERY:", g_mtd_device, NULL, "recovery", "/", g_raw },
     { "SDCARD:", "/dev/block/mmcblk0p1", "/dev/block/mmcblk0", NULL, "/sdcard", "vfat" },
     { "SYSTEM:", g_mtd_device, NULL, "system", "/system", "yaffs2" },
-    { "MBM:", g_mtd_device, NULL, "mbm", NULL, g_raw },
+    { "HIDDEN:", g_mtd_device, NULL, "hidden", "/hidden", "yaffs2" },
     { "TMP:", NULL, NULL, NULL, "/tmp", NULL },
 };
 #define NUM_ROOTS (sizeof(g_roots) / sizeof(g_roots[0]))
