@@ -798,7 +798,7 @@ show_menu_wipe()
         int alt = ui_key_pressed(KEY_LEFTALT) || ui_key_pressed(KEY_RIGHTALT);
         int visible = ui_text_visible();
 
-        if (key == KEY_BACK || KEY_ONE_CAMERA) {
+        if (key == KEY_BACK || key == KEY_ONE_CAMERA) {
             break;
         } else if (alt && key == KEY_0) {
             chosen_item = ITEM_WIPE_DATA;
@@ -1327,23 +1327,23 @@ prompt_and_wait()
 // these constants correspond to elements of the items[] list.
 #define ITEM_REBOOT        0
 #define ITEM_ADB_ENABLE    1
-#define ITEM_CONSOLE       2
-#define ITEM_USBTOGGLE     3
-#define ITEM_BR            4
-#define ITEM_FLASH         5
-#define ITEM_WIPE          6
-#define ITEM_PARTITION     7
-#define ITEM_OTHER         8
+//#define ITEM_CONSOLE       2
+#define ITEM_USBTOGGLE     2
+#define ITEM_BR            3
+#define ITEM_FLASH         4
+#define ITEM_WIPE          5
+//#define ITEM_PARTITION     6
+#define ITEM_OTHER         6
 
 
     static char* items[] = { "[Red+Cam] Reboot phone now",
                              "[Alt+A] Toggle ADB status",
-                             "[Alt+X] Go to console",
+                             //"[Alt+X] Go to console",
                              "[Alt+T] USB-MS toggle",
                              "[Alt+B] Backup/Restore",
                              "[Alt+F] Install ZIP from sdcard",
                              "[Alt+W] Wipe",
-                             "[Alt+P] Partition sdcard",
+                             //"[Alt+P] Partition sdcard",
                              "[Alt+O] Other",
                              NULL };
 
@@ -1372,8 +1372,8 @@ prompt_and_wait()
             chosen_item = ITEM_REBOOT;
         } else if (alt && key == KEY_A) {
             chosen_item = ITEM_ADB_ENABLE;
-        } else if (alt && key == KEY_X) {
-            chosen_item = ITEM_CONSOLE;
+        /*} else if (alt && key == KEY_X) {
+            chosen_item = ITEM_CONSOLE;*/
         } else if (alt && key == KEY_T) {
             chosen_item = ITEM_USBTOGGLE; 
         } else if (alt && key == KEY_B) {
@@ -1382,8 +1382,8 @@ prompt_and_wait()
             chosen_item = ITEM_FLASH;
         } else if (alt && key == KEY_W) {
             chosen_item = ITEM_WIPE;
-        } else if (alt && key == KEY_P) {
-            chosen_item = ITEM_PARTITION;
+        /*} else if (alt && key == KEY_P) {
+            chosen_item = ITEM_PARTITION;*/
         } else if (alt && key == KEY_O) {
             chosen_item = ITEM_OTHER;
 
@@ -1406,11 +1406,11 @@ prompt_and_wait()
                 case ITEM_REBOOT:
                     return;
 
-                case ITEM_CONSOLE:
+                /*case ITEM_CONSOLE:
                     ui_print("\n");
 		    do_reboot = 0;
                     gr_exit();
-                    break;
+                    break;*/
             
                 case ITEM_ADB_ENABLE:
 
@@ -1500,9 +1500,9 @@ prompt_and_wait()
                     show_menu_wipe();
                     break;
 
-                case ITEM_PARTITION:
+                /*case ITEM_PARTITION:
                     show_menu_partition();
-                    break;
+                    break;*/
 
 		case ITEM_OTHER:
                     show_menu_other();
