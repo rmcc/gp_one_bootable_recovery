@@ -198,7 +198,7 @@ int write_update_for_bootloader(
     header.version = UPDATE_VERSION;
     header.size = header_size;
 
-    off_t image_start_pos = mtd_erase_blocks(write, 0);
+    header.image_offset = mtd_erase_blocks(write, 0);
     header.image_length = update_length;
     if ((int) header.image_offset == -1 ||
         mtd_write_data(write, update, update_length) != update_length) {
@@ -206,8 +206,6 @@ int write_update_for_bootloader(
         mtd_write_close(write);
         return -1;
     }
-    off_t busy_start_pos = mtd_erase_blocks(write, 0);
-    header.image_offset = mtd_find_write_start(write, image_start_pos);
 
     header.bitmap_width = bitmap_width;
     header.bitmap_height = bitmap_height;
@@ -215,6 +213,7 @@ int write_update_for_bootloader(
 
     int bitmap_length = (bitmap_bpp + 7) / 8 * bitmap_width * bitmap_height;
 
+    header.busy_bitmap_offset = mtd_erase_blocks(write, 0);
     header.busy_bitmap_length = busy_bitmap != NULL ? bitmap_length : 0;
     if ((int) header.busy_bitmap_offset == -1 ||
         mtd_write_data(write, busy_bitmap, bitmap_length) != bitmap_length) {
@@ -222,9 +221,8 @@ int write_update_for_bootloader(
         mtd_write_close(write);
         return -1;
     }
-    off_t fail_start_pos = mtd_erase_blocks(write, 0);
-    header.busy_bitmap_offset = mtd_find_write_start(write, busy_start_pos);
 
+    header.fail_bitmap_offset = mtd_erase_blocks(write, 0);
     header.fail_bitmap_length = fail_bitmap != NULL ? bitmap_length : 0;
     if ((int) header.fail_bitmap_offset == -1 ||
         mtd_write_data(write, fail_bitmap, bitmap_length) != bitmap_length) {
@@ -232,8 +230,6 @@ int write_update_for_bootloader(
         mtd_write_close(write);
         return -1;
     }
-    mtd_erase_blocks(write, 0);
-    header.fail_bitmap_offset = mtd_find_write_start(write, fail_start_pos);
 
     /* Write the header last, after all the blocks it refers to, so that
      * when the magic number is installed everything is valid.
@@ -256,7 +252,7 @@ int write_update_for_bootloader(
         return -1;
     }
 
-    if (mtd_erase_blocks(write, 0) != image_start_pos) {
+    if (mtd_erase_blocks(write, 0) != (off_t) header.image_offset) {
         LOGE("Misalignment rewriting %s\n(%s)\n", CACHE_NAME, strerror(errno));
         mtd_write_close(write);
         return -1;

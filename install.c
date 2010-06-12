@@ -35,13 +35,70 @@
 #include "verifier.h"
 #include "firmware.h"
 
-/* List of public keys */
-static const RSAPublicKey keys[] = {
-#include "keys.inc"
-};
-
 #define ASSUMED_UPDATE_SCRIPT_NAME  "META-INF/com/google/android/update-script"
 #define ASSUMED_UPDATE_BINARY_NAME  "META-INF/com/google/android/update-binary"
+#define PUBLIC_KEYS_FILE "/res/keys"
+
+static RSAPublicKey*
+load_keys(const char* filename, int* numKeys) {
+    RSAPublicKey* out = NULL;
+    *numKeys = 0;
+
+    FILE* f = fopen(filename, "r");
+    if (f == NULL) {
+        LOGE("opening %s: %s\n", filename, strerror(errno));
+        goto exit;
+    }
+
+    int i;
+    bool done = false;
+    while (!done) {
+        ++*numKeys;
+        out = realloc(out, *numKeys * sizeof(RSAPublicKey));
+        RSAPublicKey* key = out + (*numKeys - 1);
+        if (fscanf(f, " { %i , %i , { %i",
+                   &(key->len), &(key->n0inv), &(key->n[0])) != 3) {
+            goto exit;
+        }
+        if (key->len != RSANUMWORDS) {
+            LOGE("key length (%d) does not match expected size\n", key->len);
+            goto exit;
+        }
+        for (i = 1; i < key->len; ++i) {
+            if (fscanf(f, " , %i", &(key->n[i])) != 1) goto exit;
+        }
+        if (fscanf(f, " } , { %i", &(key->rr[0])) != 1) goto exit;
+        for (i = 1; i < key->len; ++i) {
+            if (fscanf(f, " , %i", &(key->rr[i])) != 1) goto exit;
+        }
+        fscanf(f, " } } ");
+
+        // if the line ends in a comma, this file has more keys.
+        switch (fgetc(f)) {
+            case ',':
+                // more keys to come.
+                break;
+
+            case EOF:
+                done = true;
+                break;
+
+            default:
+                LOGE("unexpected character between keys\n");
+                goto exit;
+        }
+    }
+
+    fclose(f);
+    return out;
+
+exit:
+    if (f) fclose(f);
+    free(out);
+    *numKeys = 0;
+    return NULL;
+}
+
 
 static const ZipEntry *
 find_update_script(ZipArchive *zip)
@@ -325,10 +382,15 @@ handle_update_package(const char *path, ZipArchive *zip)
             VERIFICATION_PROGRESS_FRACTION,
             VERIFICATION_PROGRESS_TIME);
 
-    if (!verify_jar_signature(zip, keys, sizeof(keys) / sizeof(keys[0]))) {
+int numKeys;
+RSAPublicKey* keys = load_keys(PUBLIC_KEYS_FILE, &numKeys);
+
+    if (!verify_file(path, keys, numKeys)) {
         LOGE("Verification failed\n");
+	free(keys);
         return INSTALL_CORRUPT;
     }
+    free(keys);
 
     // Update should take the rest of the progress bar.
     ui_print("Installing update...\n");
