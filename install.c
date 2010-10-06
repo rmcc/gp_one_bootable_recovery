@@ -385,9 +385,9 @@ handle_update_package(const char *path, ZipArchive *zip)
 int numKeys;
 RSAPublicKey* keys = load_keys(PUBLIC_KEYS_FILE, &numKeys);
 
-    if (!verify_file(path, keys, numKeys)) {
+    if (verify_file(path, keys, numKeys)) {
         LOGE("Verification failed\n");
-	free(keys);
+		free(keys);
         return INSTALL_CORRUPT;
     }
     free(keys);
